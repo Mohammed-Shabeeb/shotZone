@@ -1,0 +1,2 @@
+Bootstrapper.bindImmediate(function(){var Bootstrapper=window["Bootstrapper"];var ensightenOptions=Bootstrapper.ensightenOptions;if(!!document.cookie.match(/country=sg/))Bootstrapper.loadScriptCallback("https://uid.mediacorp.sg/api/scripts/meid_partners.js?network\x3despn",function(){var meid=window.meid||Bootstrapper.Cookies.get("meid");googletag.cmd=googletag.cmd||[];googletag.pubads().setTargeting("meid",meid);googletag.pubads().setTargeting("meid_seg",window.meid_seg||Bootstrapper.Cookies.get("meid_seg"))})},
+3427451,664622,24);

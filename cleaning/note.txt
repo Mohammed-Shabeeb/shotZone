@@ -1,0 +1,264 @@
+4 runs, but the position is not mentioned, this case has to be dealt with
+    if it is a straight drive, most probably the position will be straight hit
+
+
+
+
+
+
+positions = { "Off Side Positions": { "Slip 1": (15, 340), "Slip 2": (15, 345), "Slip 3": (15, 350), "Gully": (25, 320),
+ "Point": (60, 270), "Backward Point": (70, 280), "Cover Point": (55, 250), "Cover": (60, 240), "Extra Cover": (65, 220),
+  "Deep Extra Cover": (75, 220), "Mid-Off": (40, 210), "Long Off": (80, 200), "Fly Slip": (30, 330) },
+   "On Side Positions": { "Leg Slip": (10, 20), "Leg Gully": (25, 40), "Square Leg": (60, 90), "Backward Square Leg": (65, 70),
+    "Forward Square Leg": (55, 100), "Mid-Wicket": (60, 120), "Deep Mid-Wicket": (75, 130), "Mid-On": (40, 150),
+     "Long On": (80, 160), "Fine Leg": (70, 30), "Short Fine Leg": (25, 20), "Backward Short Leg": (15, 10) },
+      "Straight Positions": { "Straight Hit": (85, 180), "Bowler's End (Mid)": (18, 180) },
+       "Close-In Positions": { "Wicketkeeper": (3, 0), "Silly Point": (5, 280), "Silly Mid-Off": (5, 210),
+        "Silly Mid-On": (5, 150), "Short Leg": (5, 45), "Short Mid-Wicket": (25, 120), "Short Cover": (25, 230),
+         "Bat Pad (Short Leg)": (5, 20) }, "Boundary Positions": { "Third Man": (80, 330), "Deep Backward Point": (75, 300),
+          "Deep Cover Point": (75, 250), "Deep Extra Cover": (85, 220), "Long Off": (85, 210), "Long On": (85, 150),
+           "Deep Mid-Wicket": (85, 130), "Deep Square Leg": (85, 90), "Deep Fine Leg": (85, 40), "Long Stop": (90, 0) } }
+
+
+
+
+
+
+
+
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load data
+data = pd.read_csv('/path/to/kohli_overs_6_to_15.csv')
+
+# Filter and prepare data
+data_filtered = data.dropna(subset=['Line', 'Length', 'Position', 'Runs'])
+data_filtered['Line_Length'] = data_filtered['Line'] + " - " + data_filtered['Length']
+combination_counts = data_filtered.groupby(['Line_Length', 'Position']).size().reset_index(name='Count')
+total_counts = data_filtered.groupby('Line_Length').size().reset_index(name='Total')
+percentage_data = combination_counts.merge(total_counts, on='Line_Length')
+percentage_data['Percentage'] = (percentage_data['Count'] / percentage_data['Total']) * 100
+
+# Calculate average runs for each line-length combination
+combination_stats = data_filtered.groupby(['Line', 'Length']).agg({'Runs': 'sum', 'Position': 'count'}).reset_index()
+combination_stats.columns = ['Line', 'Length', 'Total_Runs', 'Count']
+combination_stats['Average_Runs'] = combination_stats['Total_Runs'] / combination_stats['Count']
+
+# Define field positions with coordinates based on the standard field layout
+field_positions = {
+    "Third Man": (80, -90),
+    "Point": (50, -50),
+    "Cover": (30, -30),
+    "Deep Cover": (80, -30),
+    "Square Leg": (-50, -50),
+    "Mid-Wicket": (-30, 30),
+    "Deep Mid-Wicket": (-80, 30),
+    "Deep Square Leg": (-80, -50),
+    "Long On": (-90, 0),
+    "Long Off": (90, 0),
+    "Fine Leg": (-80, 90)
+}
+
+# Function to plot field setting using both insights
+def plot_field_setting(line, length):
+    line_length = f"{line} - {length}"
+    top_positions = percentage_data[percentage_data['Line_Length'] == line_length].sort_values(by='Percentage', ascending=False)
+    
+    if top_positions.empty:
+        print(f"No data available for Line: {line} and Length: {length}")
+        return
+    
+    # Get average runs for this line-length combination
+    avg_runs = combination_stats[(combination_stats['Line'] == line) & (combination_stats['Length'] == length)]['Average_Runs']
+    avg_runs = avg_runs.values[0] if not avg_runs.empty else "No data"
+    
+    # Create the cricket field
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.set_xlim(-100, 100)
+    ax.set_ylim(-100, 100)
+    
+    # Draw circles representing the field
+    for radius in [30, 60, 90]:
+        circle = plt.Circle((0, 0), radius, color="green", fill=False, linestyle="--")
+        ax.add_artist(circle)
+    
+    # Draw the pitch (rotated 90 degrees counterclockwise)
+    pitch = plt.Rectangle((-2, -5), 4, 10, color="brown")
+    ax.add_artist(pitch)
+    
+    # Plot the top 9 fielding positions
+    for _, row in top_positions.head(9).iterrows():
+        position = row['Position']
+        if position in field_positions:
+            x, y = field_positions[position]
+            ax.plot(x, y, 'ro')  # Mark the position with a red dot
+            ax.text(x, y, f"{position}\n{row['Percentage']:.1f}%", ha='center', color="black", fontsize=10)
+    
+    # Set plot details
+    ax.set_title(f"Field Setting for {line} - {length} | Avg Runs: {avg_runs:.1f}")
+    ax.set_aspect('equal', 'box')
+    plt.axis('off')  # Hide axis
+    plt.show()
+
+# Example usage
+plot_field_setting("Outside-off", "Good")
+
+
+
+
+
+field_positions = {
+    "Slip": (15, 345), 
+    "Gully": (25, 320), 
+    "Point": (60, 270), 
+    "Backward-point": (70, 280),
+    "Cover-point": (55, 250), 
+    "Cover": (60, 240), 
+    "Extra-cover": (65, 220), 
+    "Deep-extra-cover": (85, 220),
+    "Mid-off": (40, 210), 
+    "Long-off": (85, 200), 
+    "Fly-slip": (30, 330), 
+    "Leg-slip": (10, 20),
+    "Leg-dully": (25, 40), 
+    "Square-leg": (60, 90), 
+    "Backward-square-leg": (65, 70),
+    "Forward-square-leg": (55, 100), 
+    "Mid-wicket": (60, 120), 
+    "Deep-mid-wicket": (85, 130),
+    "Mid-on": (40, 150), 
+    "Long-on": (85, 160), 
+    "Fine-leg": (70, 30), 
+    "Short-fine-leg": (25, 20),
+    "Backward-short-leg": (15, 10), 
+    "Straight-hit": (85, 180), 
+    "Third-man": (80, 330),
+    "Deep-backward-point": (75, 300), 
+    "Deep-cover-point": (75, 250), 
+    "Long-stop": (90, 0),
+    "Deep-fine-leg": (85, 40), 
+    "Deep-square-leg": (85, 90), 
+    "Deep-mid-wicket": (85, 130)
+}
+
+
+
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load data
+data = pd.read_csv('/path/to/kohli_overs_6_to_15.csv')
+
+# Filter and prepare data
+data_filtered = data.dropna(subset=['Line', 'Length', 'Position', 'Runs'])
+data_filtered['Line_Length'] = data_filtered['Line'] + " - " + data_filtered['Length']
+combination_counts = data_filtered.groupby(['Line_Length', 'Position']).size().reset_index(name='Count')
+total_counts = data_filtered.groupby('Line_Length').size().reset_index(name='Total')
+percentage_data = combination_counts.merge(total_counts, on='Line_Length')
+percentage_data['Percentage'] = (percentage_data['Count'] / percentage_data['Total']) * 100
+
+# Calculate average runs for each line-length combination
+combination_stats = data_filtered.groupby(['Line', 'Length']).agg({'Runs': 'sum', 'Position': 'count'}).reset_index()
+combination_stats.columns = ['Line', 'Length', 'Total_Runs', 'Count']
+combination_stats['Average_Runs'] = combination_stats['Total_Runs'] / combination_stats['Count']
+
+# Field positions in polar coordinates (distance in meters, angle in degrees)
+field_positions = {
+    "Slip": (15, 345), 
+    "Gully": (25, 320), 
+    "Point": (60, 270), 
+    "Backward-Point": (70, 280),
+    "Cover-Point": (55, 250), 
+    "Cover": (60, 240), 
+    "Extra-Cover": (65, 220), 
+    "Deep-Extra-Cover": (85, 220),
+    "Mid-Off": (40, 210), 
+    "Long-Off": (85, 200), 
+    "Fly-Slip": (30, 330), 
+    "Leg-Slip": (10, 20),
+    "Leg-Gully": (25, 40), 
+    "Square-Leg": (60, 90), 
+    "Backward-Square-Leg": (65, 70),
+    "Forward-Square-Leg": (55, 100), 
+    "Mid-Wicket": (60, 120), 
+    "Deep-Mid-Wicket": (85, 130),
+    "Mid-On": (40, 150), 
+    "Long-On": (85, 160), 
+    "Fine-Leg": (70, 30), 
+    "Short-Fine-Leg": (25, 20),
+    "Backward-Short-Leg": (15, 10), 
+    "Straight-Hit": (85, 180), 
+    "Third-Man": (80, 330),
+    "Deep-Backward-Point": (75, 300), 
+    "Deep-Cover-Point": (75, 250), 
+    "Long-Stop": (90, 0),
+    "Deep-Fine-Leg": (85, 40), 
+    "Deep-Square-Leg": (85, 90), 
+    "Deep-Mid-Wicket": (85, 130)
+}
+
+# Convert polar coordinates to Cartesian coordinates
+def polar_to_cartesian(polar_coords):
+    distance, angle = polar_coords
+    angle_rad = np.radians(angle)
+    x = distance * np.cos(angle_rad)
+    y = distance * np.sin(angle_rad)
+    return x, y
+
+# Function to plot field setting using both insights
+def plot_field_setting(line, length):
+    line_length = f"{line} - {length}"
+    top_positions = percentage_data[percentage_data['Line_Length'] == line_length].sort_values(by='Percentage', ascending=False)
+    
+    if top_positions.empty:
+        print(f"No data available for Line: {line} and Length: {length}")
+        return
+    
+    # Print top field positions to console
+    print("Top Field Positions:")
+    for _, row in top_positions.iterrows():
+        print(f"  Position: {row['Position']} - Percentage: {row['Percentage']:.2f}%")
+
+    # Get average runs for this line-length combination
+    avg_runs = combination_stats[(combination_stats['Line'] == line) & (combination_stats['Length'] == length)]['Average_Runs']
+    avg_runs = avg_runs.values[0] if not avg_runs.empty else "No data"
+    
+    # Create the cricket field
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.set_xlim(-100, 100)
+    ax.set_ylim(-100, 100)
+    
+    # Draw circles representing the field
+    for radius in [30, 60, 90]:
+        circle = plt.Circle((0, 0), radius, color="green", fill=False, linestyle="--")
+        ax.add_artist(circle)
+    
+    # Draw the pitch (rotated 90 degrees counterclockwise)
+    pitch = plt.Rectangle((-2, -5), 4, 10, color="brown")
+    ax.add_artist(pitch)
+
+    # Plot the top fielding positions based on the printed output
+    print(f"Number of top positions: {len(top_positions)}")  # Debugging line
+    for _, row in top_positions.iterrows():
+        position = row['Position']
+        if position in field_positions:
+            x, y = polar_to_cartesian(field_positions[position])
+            ax.plot(x, y, 'ro')  # Mark the position with a red dot
+            ax.text(x, y, f"{position}\n{row['Percentage']:.1f}%", ha='center', color="black", fontsize=10)
+    
+    # Set plot details
+    ax.set_title(f"Field Setting for {line} - {length} | Avg Runs: {avg_runs:.1f}")
+    ax.set_aspect('equal', 'box')
+    plt.axis('off')  # Hide axis
+    plt.show()
+
+# Example usage
+plot_field_setting("Outside-off", "Good")
