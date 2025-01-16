@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="bg-white p-8 rounded-lg shadow-md w-full md:w-1/2 lg:w-1/3 mx-auto">
+        <form action="#" method="post" class="space-y-6">
+            <!-- Overs -->
+            <div>
+                <label for="overs" class="block text-sm font-medium text-gray-700">Overs:</label>
+                <select class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" name="overs" id="overs">
+                    <option value="./web/kohli.csv" selected>All</option>
+                    <option value="./web/kohli_overs_less_than_6.csv">1-6</option>
+                    <option value="./web/kohli_overs_6_to_15.csv">7-15</option>
+                    <option value="./web/kohli_overs_greater_than_15.csv">16-20</option>
+                </select>
+            </div>
+
+            <!-- Matrix -->
+            <div>
+                <label for="matrix" class="block text-sm font-medium text-gray-700">Matrix:</label>
+                <select class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" name="matrix" id="matrix" onchange="toggleAdditionalSelect()">
+                    <option value="1" selected>Field</option>
+                    <option value="2">Line Type Distribution</option>
+                    <option value="3">Line vs Length</option>
+                    <option value="4">Outcome Distribution</option>
+                    <option value="5">Shot Position Distribution</option>
+                    <option value="6">Shot Type Distribution</option>
+                    <option value="7">Strength and Weakness</option>
+                </select>
+            </div>
+
+            <!-- Line -->
+            <div id="line-select" style="display: block;">
+                <label for="line" class="block text-sm font-medium text-gray-700">Line:</label>
+                <select class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" name="line" id="line">
+                    <option value="Outside-off" selected>Outside-off</option>
+                    <option value="Middle-stump">Middle-stump</option>
+                    <option value="Leg-stump">Leg-stump</option>
+                </select>
+            </div>
+
+            <!-- Length -->
+            <div id="length-select" style="display: block;">
+                <label for="length" class="block text-sm font-medium text-gray-700">Length:</label>
+                <select class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" name="length" id="length">
+                    <option value="Full" selected>Full</option>
+                    <option value="Good">Good</option>
+                    <option value="Short">Short</option>
+                    <option value="Yorker">Yorker</option>
+                    <option value="Length">Length</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Submit
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function toggleAdditionalSelect() {
+            const matrixSelect = document.getElementById('matrix');
+            const lengthSelect = document.getElementById('length-select');
+            const lineSelect = document.getElementById('line-select');
+            
+            if (matrixSelect.value === "1") {
+                lengthSelect.style.display = "block";
+                lineSelect.style.display = "block";
+            } else {
+                lengthSelect.style.display = "none";
+                lineSelect.style.display = "none";
+            }
+        }
+    </script>
+{% endblock %}

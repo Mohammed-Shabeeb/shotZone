@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>ShotZone</title>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-3">
+                <img src="/web/field_new.jpeg" alt="ShotZone Logo" class="w-8 h-8">
+                <span class="text-xl font-semibold text-gray-800">ShotZone</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Content Block -->
+    <div class="container mx-auto mt-10">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>
